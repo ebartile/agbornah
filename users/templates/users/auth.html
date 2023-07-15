@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#login">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#register">Register</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <div id="login" class="tab-pane fade show active">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="login" value="True" />
+                {% if login_form.errors %}
+                    <div class="alert alert-danger">
+                        {{ login_form.non_field_errors }}
+                        {% for field in login_form %}
+                            {% for error in field.errors %}
+                                <strong>{{ error }}</strong>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    {{ login_form.username }}
+                </div>
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    {{ login_form.password }}
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+
+                <br>
+                <br>
+                <br>
+                <a href="{% url 'forget_password' %}">Forgot Password</a>
+            </form>
+        </div>
+
+        <div id="register" class="tab-pane fade">
+            <form method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="register" value="True" />
+                {% if registration_form.errors %}
+                    <div class="alert alert-danger">
+                        {{ registration_form.non_field_errors }}
+                        {% for field in registration_form %}
+                            {% for error in field.errors %}
+                                <strong>{{ error }}</strong>
+                            {% endfor %}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="form-group">
+                    <label for="id_email">Email</label>
+                    {{ registration_form.email }}
+                </div>
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    {{ registration_form.username }}
+                </div>
+                <div class="form-group">
+                    <label for="id_fullname">Full Name</label>
+                    {{ registration_form.full_name }}
+                </div>
+                <div class="form-group">
+                    <label for="id_password1">Password</label>
+                    {{ registration_form.password1 }}
+                </div>
+                <div class="form-group">
+                    <label for="id_password2">Confirm Password</label>
+                    {{ registration_form.password2 }}
+                </div>
+                <div class="form-check">
+                    {{ registration_form.accepted_terms }}
+                    <label class="form-check-label" for="id_accepted_terms">Accept <a href="#">Terms and Conditions</a> of use.</label>
+                </div>                
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

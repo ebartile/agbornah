@@ -58,6 +58,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     full_name = models.CharField(_("full name"), max_length=256, blank=True)
     bio = models.TextField(null=False, blank=True, default="", verbose_name=_("biography"))
+    accepted_terms = models.BooleanField(_("accepted terms"), default=True)
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email"]
