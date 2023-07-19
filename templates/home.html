@@ -1,7 +1,10 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 
 {% block content %}
 <div class="container mt-5">
     <p>Home</p>
+
+    <p> {{ request.user.id|get_email }} </p>
 </div>
 {% endblock %}
