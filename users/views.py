@@ -1,10 +1,29 @@
 from django.views import View
+from django.views.generic import ListView
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from .models import User
 from .forms import LoginForm, RegistrationForm
 from django.contrib.auth.forms import PasswordResetForm
+from .signals import user_registered as user_registered_signal
+from django.db import transaction as tx
+from django.http import Http404
+from django.core.paginator import Paginator
+
+def users_list(request):
+    user_list = User.objects.all()
+    paginator = Paginator(user_list, 2)  # Show 2 user per page.
+
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+    return render(request, "users/list.html", {"page_obj": page_obj})
+
+class UsersView(ListView):
+    model = User
+    paginate_by = 2
+    template_name = "users/list.html"
+
 
 class ForgetPasswordView(View):
     def get(self, request):
@@ -37,10 +56,10 @@ class AuthView(View):
         if 'register' in request.POST:
             registration_form = RegistrationForm(request.POST)
             if registration_form.is_valid():
-                registration_form.save()
                 # Optionally, authenticate and login the user after registration
                 username = registration_form.cleaned_data.get('username')
                 password = registration_form.cleaned_data.get('password1')
+                user_register(username=username, password=password)
                 user = authenticate(username=username, password=password)
                 login(request, user)
                 return redirect('/home')
@@ -59,4 +78,24 @@ class AuthView(View):
 
         return render(request, 'users/auth.html', {'registration_form': registration_form, 'login_form': login_form})
 
+def is_user_already_registered(*, username:str):
+    if User.objects.filter(username__iexact=username).exists():
+        return (True, _("Username is already in use."))
 
+    return (False, None)
+
+@tx.atomic
+def user_register(username:str, password:str):
+    is_registered, reason = is_user_already_registered(username=username)
+    if is_registered:
+        raise Http404(reason)
+
+    user = User(username=username)
+    user.set_password(password)
+    try:
+        user.save()
+    except:
+        raise Http404(_("User is already registered."))
+
+    user_registered_signal.send(sender=user.__class__, user=user)
+    return user

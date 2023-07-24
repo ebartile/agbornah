@@ -11,12 +11,6 @@
             <a class="nav-link" data-toggle="tab" href="#register">Register</a>
         </li>
     </ul>
-    {% get_users as all_users %}
-    <ul>
-        {% for user in all_users %}
-        <li>{{ user.email }}</li>    
-        {% endfor %}
-    </ul>
 
     <div class="tab-content mt-3">
         <div id="login" class="tab-pane fade show active">

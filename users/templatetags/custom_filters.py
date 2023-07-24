@@ -4,6 +4,5 @@ from users.models import User
 register = template.Library()
 
 @register.filter
-def get_email(id):
-    user = User.objects.get(id=id)
-    return user.email
+def get_date(date):    
+    return "Y-M-d"
